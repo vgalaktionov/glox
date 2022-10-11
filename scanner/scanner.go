@@ -3,11 +3,9 @@ package scanner
 import (
 	"strconv"
 	"unicode"
-)
 
-type ErrorReporter interface {
-	Error(int, string, ...interface{})
-}
+	"github.com/vgalaktionov/glox/util"
+)
 
 type Scanner struct {
 	source   []rune
@@ -15,7 +13,7 @@ type Scanner struct {
 	start    int
 	current  int
 	line     int
-	reporter ErrorReporter
+	reporter util.ErrorReporter
 }
 
 var keywords = map[string]TokenType{
@@ -37,7 +35,7 @@ var keywords = map[string]TokenType{
 	"while":  While,
 }
 
-func NewScanner(source string, reporter ErrorReporter) *Scanner {
+func NewScanner(source string, reporter util.ErrorReporter) *Scanner {
 	return &Scanner{[]rune(source), nil, 0, 0, 1, reporter}
 }
 

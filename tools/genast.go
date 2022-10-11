@@ -17,7 +17,6 @@ type fields map[string]string
 type types map[string]fields
 
 func main() {
-	fmt.Fprintln(os.Stderr, "genast args: ", os.Args)
 	if len(os.Args) > 3 || os.Args[1] == "-h" || os.Args[1] == "--help" {
 		fmt.Fprintln(os.Stderr, "Usage: go run tools/genast.go <output dir> <base name>")
 		os.Exit(64)

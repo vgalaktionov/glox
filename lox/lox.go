@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/vgalaktionov/glox/parser"
 	"github.com/vgalaktionov/glox/scanner"
 )
 
@@ -47,16 +48,34 @@ func RunPrompt() {
 func run(source string) {
 	s := scanner.NewScanner(source, &DefaultErrorReporter{})
 	tokens := s.ScanTokens()
+	p := parser.NewParser(tokens)
+	expr := p.Parse()
 
-	for _, token := range tokens {
-		fmt.Println(token)
+	// stop on syntax error
+	if hadError {
+		return
 	}
+
+	fmt.Println(parser.AstPrinter(expr))
 }
 
 type DefaultErrorReporter struct{}
 
-func (er *DefaultErrorReporter) Error(line int, message string, params ...interface{}) {
-	er.report(line, "", fmt.Sprintf(message, params...))
+func (er *DefaultErrorReporter) Error(context interface{}, message string, params ...interface{}) {
+	switch c := context.(type) {
+	case scanner.Token:
+		{
+			if c.Type == scanner.EOF {
+				er.report(c.Line, " at end", fmt.Sprintf(message, params...))
+			} else {
+				er.report(c.Line, fmt.Sprintf(" at '%s'", c.Lexeme), fmt.Sprintf(message, params...))
+			}
+		}
+	case int: // line number
+		er.report(c, "", fmt.Sprintf(message, params...))
+	default:
+		er.report(-1, "", fmt.Sprintf(message, params...))
+	}
 }
 
 func (er *DefaultErrorReporter) report(line int, where string, message string) {
